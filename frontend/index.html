@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Design & Analysis: Graph Algorithm Explorer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+      color: #111827;
+    }
+
+    .container-card {
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.15),
+        0 4px 12px -2px rgba(0, 0, 0, 0.08);
+      background: linear-gradient(to bottom right, #f3f4f6, #e5e7eb);
+      border: 1px solid #9ca3af;
+      transition: all 0.25s ease;
+    }
+    .container-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 40px -5px rgba(0, 0, 0, 0.2);
+    }
+
+    .control-button {
+      transition: all 0.2s ease-in-out;
+      font-weight: 600;
+      letter-spacing: 0.025em;
+    }
+    .control-button:hover {
+      transform: scale(1.03);
+      filter: brightness(1.1);
+    }
+    .control-button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .node-label {
+      position: absolute;
+      pointer-events: none;
+      font-size: 15px;
+      font-weight: 700;
+      color: #111827;
+      transform: translate(-50%, -50%);
+    }
+
+    .mode-button-active {
+      background-color: #059669;
+      color: white;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+    }
+
+    .pseudocode {
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      background: #e5e7eb;
+      border-radius: 8px;
+      padding: 10px;
+      color: #1f2937;
+    }
+    .pseudocode-active {
+      background-color: #fef3c7;
+      font-weight: bold;
+    }
+
+    .data-structure-box {
+      border: 2px solid #2563eb;
+      border-radius: 8px;
+      padding: 8px;
+      margin: 4px 0;
+      background: #dbeafe;
+      color: #1e3a8a;
+    }
+
+    h2, h3, h4 {
+      background: linear-gradient(to right, #0ea5e9, #10b981);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .app-bg {
+      background: linear-gradient(135deg, #d1d5db 0%, #e5e7eb 100%);
+      min-height: 100vh;
+      padding: 1rem;
+    }
+
+    hr {
+      border-color: #9ca3af;
+      opacity: 0.4;
+    }
+  </style>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'primary-teal': '#10b981',
+            'secondary-dark': '#1f2937',
+            'highlight-visited': '#f97316',
+            'highlight-current': '#ef4444',
+            'highlight-path': '#3b82f6',
+          },
+        },
+      },
+    };
+  </script>
+</head>
+
+<body class="app-bg">
+
+  <h1 class="text-4xl font-extrabold text-secondary-dark mb-2 text-center">
+    Graph Algorithm Explorer
+  </h1>
+  <p class="text-center text-gray-600 mb-6">
+    Interactive Visualization & Performance Comparison Tool
+  </p>
+
+  <!-- Main 3-Column Layout -->
+  <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+
+    <!-- LEFT COLUMN: Graph Builder -->
+    <div id="graph-builder-section" class="space-y-4">
+      <div class="bg-white p-6 rounded-xl container-card border border-gray-100">
+        <h2 class="text-2xl font-bold mb-4 text-primary-teal">Graph Builder</h2>
+
+        <div class="mb-4 p-4 rounded-lg bg-gray-50 border border-gray-200">
+          <p class="text-sm font-medium text-gray-700 mb-3">
+            Mode: <span id="current-mode-display" class="font-bold text-primary-teal">Add Node</span>
+          </p>
+
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center space-x-2">
+              <input type="checkbox" id="directed-toggle" onchange="resetVisualization(false); updateComplexityDisplay()" class="h-4 w-4 text-primary-teal border-gray-300 rounded">
+              <label for="directed-toggle" class="text-sm font-medium text-gray-700">Directed</label>
+            </div>
+
+            <div class="w-1/2">
+              <label for="edge-weight" class="block text-xs font-medium text-gray-700 mb-1">Edge Weight</label>
+              <input type="number" id="edge-weight" value="1" class="w-full p-2 border border-gray-300 rounded-lg text-sm">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 mb-3">
+            <button id="mode-node-btn" onclick="setMode('ADD_NODE')" class="control-button bg-gray-200 text-secondary-dark py-2 rounded-lg hover:bg-primary-teal hover:text-white mode-button-active text-xs">Add Node</button>
+            <button id="mode-edge-btn" onclick="setMode('ADD_EDGE')" class="control-button bg-gray-200 text-secondary-dark py-2 rounded-lg hover:bg-primary-teal hover:text-white text-xs">Add Edge</button>
+            <button id="mode-delete-btn" onclick="setMode('DELETE')" class="control-button bg-gray-200 text-secondary-dark py-2 rounded-lg hover:bg-red-500 hover:text-white text-xs">Delete</button>
+          </div>
+
+          <div class="border-t pt-3">
+            <h3 class="font-bold text-sm mb-2 text-secondary-dark">Preset Graphs</h3>
+            <div class="grid grid-cols-2 gap-2 mb-2">
+              <button onclick="loadPresetGraph('complete5')" class="control-button bg-indigo-500 text-white py-1 rounded text-xs hover:bg-indigo-600">K5 Complete</button>
+              <button onclick="loadPresetGraph('bipartite')" class="control-button bg-indigo-500 text-white py-1 rounded text-xs hover:bg-indigo-600">Bipartite</button>
+              <button onclick="loadPresetGraph('negative_cycle')" class="control-button bg-indigo-500 text-white py-1 rounded text-xs hover:bg-indigo-600">Neg. Cycle</button>
+              <button onclick="loadPresetGraph('sparse')" class="control-button bg-indigo-500 text-white py-1 rounded text-xs hover:bg-indigo-600">Sparse Tree</button>
+            </div>
+          </div>
+
+          <div class="border-t pt-3">
+            <h3 class="font-bold text-sm mb-2 text-secondary-dark">Random Generator</h3>
+            <div class="flex space-x-2">
+              <input type="number" id="num-nodes-input" value="8" min="2" max="15" class="w-1/3 p-2 border rounded text-sm" placeholder="V">
+              <input type="number" id="num-edges-input" value="12" min="1" class="w-1/3 p-2 border rounded text-sm" placeholder="E">
+              <button onclick="generateRandomGraph()" class="w-1/3 control-button bg-blue-500 text-white py-2 rounded hover:bg-blue-600 text-xs">Generate</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MIDDLE COLUMN: Visualization -->
+    <div id="visualization-section" class="space-y-4 lg:col-span-1">
+      <div class="bg-white p-6 rounded-xl container-card border border-gray-100">
+        <h2 class="text-2xl font-bold mb-4 text-secondary-dark text-center">Graph Visualization</h2>
+        <div id="canvas-container" class="relative">
+          <canvas id="graphCanvas" class="w-full rounded-lg bg-gray-50"></canvas>
+          <div id="node-labels" class="absolute inset-0 pointer-events-none"></div>
+        </div>
+        <p id="graph-interaction-status" class="text-center text-xs font-medium italic mt-3 text-gray-600">Click canvas to add nodes</p>
+      </div>
+
+      <div id="ds-panel" class="bg-white p-6 rounded-xl container-card border border-gray-100 hidden">
+        <h3 class="text-lg font-bold mb-3 text-secondary-dark">Data Structure State</h3>
+        <div id="ds-content" class="text-sm font-mono"></div>
+      </div>
+
+      <div id="pseudocode-panel" class="bg-white p-6 rounded-xl container-card border border-gray-100 hidden">
+        <h3 class="text-lg font-bold mb-3 text-secondary-dark">Algorithm Pseudocode</h3>
+        <pre id="pseudocode-content" class="pseudocode text-xs overflow-auto max-h-64"></pre>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: Algorithm Setup -->
+    <div id="algorithm-setup-section" class="space-y-4">
+      <div class="bg-white p-6 rounded-xl container-card border border-gray-100">
+        <h2 class="text-xl font-bold mb-4 text-secondary-dark">Algorithm Setup</h2>
+
+        <div class="mb-4">
+          <label for="algorithm-select" class="block text-sm font-medium text-gray-700 mb-2">Select Algorithm</label>
+          <select id="algorithm-select" class="w-full p-2 border rounded-lg bg-white text-sm" onchange="resetVisualization(false); updateComplexityDisplay()">
+            <option value="BFS">BFS - Breadth-First Search</option>
+            <option value="DFS">DFS - Depth-First Search</option>
+            <option value="Dijkstra">Dijkstra's Shortest Path</option>
+            <option value="BellmanFord">Bellman-Ford (Neg. OK)</option>
+            <option value="Prims">Prim's MST</option>
+            <option value="Kruskals">Kruskal's MST</option>
+            <option value="FloydWarshall">Floyd-Warshall APSP</option>
+          </select>
+        </div>
+
+        <div class="flex space-x-3 mb-4">
+          <div class="w-1/2">
+            <label for="start-node" class="block text-xs font-medium text-gray-700 mb-2">Start Node</label>
+            <select id="start-node" class="w-full p-2 border rounded-lg bg-white text-sm"></select>
+          </div>
+          <div class="w-1/2">
+            <label for="target-node" class="block text-xs font-medium text-gray-700 mb-2">Target Node</label>
+            <select id="target-node" class="w-full p-2 border rounded-lg bg-white text-sm"></select>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="block text-xs font-medium text-gray-700 mb-2">Animation Speed</label>
+          <input type="range" id="speed-slider" min="100" max="2000" value="800" step="100" class="w-full">
+          <p class="text-xs text-gray-500 text-center"><span id="speed-display">800</span> ms/step</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 mb-4">
+          <button id="start-btn" onclick="startVisualization()" class="control-button bg-primary-teal text-white py-2 rounded-lg hover:bg-green-600 shadow-md text-sm">Start</button>
+          <button id="next-btn" onclick="nextStep()" class="control-button bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 shadow-md text-sm" disabled>Next</button>
+          <button id="auto-btn" onclick="toggleAutoPlay()" class="control-button bg-purple-500 text-white py-2 rounded-lg hover:bg-purple-600 shadow-md text-sm" disabled>Auto Play</button>
+          <button id="reset-btn" onclick="resetVisualization(true)" class="control-button bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 shadow-md text-sm">Clear</button>
+        </div>
+
+        <button id="compare-btn" onclick="runAllAlgorithms()" class="control-button w-full bg-indigo-600 text-white py-2 mb-3 rounded-lg hover:bg-indigo-700 shadow-md text-sm">
+          Run All & Compare
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM: Algorithm Status -->
+  <div id="algorithm-status-section" class="max-w-7xl mx-auto mt-6 bg-white p-6 rounded-xl container-card border border-gray-100">
+    <h3 class="font-bold text-lg mb-3 text-secondary-dark">Algorithm Status</h3>
+    <div class="text-sm mb-2 text-gray-600 border-b pb-2">
+      <p class="font-medium">V: <span id="metric-V" class="font-mono">0</span> | E: <span id="metric-E" class="font-mono">0</span> | Density: <span id="metric-density" class="font-mono text-primary-teal">0.00%</span></p>
+    </div>
+
+    <div class="text-sm mb-2 text-gray-600 border-b pb-2">
+      <p class="font-medium">Complexity: <span id="time-complexity" class="text-primary-teal font-mono">O(V + E)</span></p>
+    </div>
+
+    <p class="text-sm mb-1 text-gray-600"><span class="font-medium">Time:</span> <span id="time-taken" class="text-primary-teal font-mono">N/A</span></p>
+    <p class="text-sm mb-1 text-gray-600"><span class="font-medium">Step:</span> <span id="step-counter" class="font-mono">0</span> / <span id="total-steps" class="font-mono">0</span></p>
+    <p class="text-sm mb-1 text-gray-600"><span class="font-medium">Operations:</span> <span id="op-counter" class="font-mono">0</span></p>
+    <p class="text-sm mb-2 text-gray-600 min-h-[40px]"><span class="font-medium">Action:</span> <span id="current-action" class="italic text-xs">Select mode and build graph!</span></p>
+
+    <div class="mt-3 border-t pt-3">
+      <h4 class="font-semibold text-gray-800 text-sm">Result:</h4>
+      <p id="final-result" class="text-xs break-words mt-1 text-gray-700">—</p>
+    </div>
+
+    <div id="graph-properties" class="mt-3 border-t pt-3 hidden">
+      <h4 class="font-semibold text-gray-800 text-sm mb-2">Graph Properties:</h4>
+      <div class="text-xs space-y-1" id="properties-list"></div>
+    </div>
+
+    <div id="comparison-results" class="hidden mt-4 pt-4 border-t">
+      <h4 class="font-bold text-sm mb-2 text-secondary-dark">Performance Comparison</h4>
+      <div class="overflow-x-auto">
+        <table id="comparison-table" class="min-w-full text-xs"></table>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js" defer></script>
+</body>
+</html>
