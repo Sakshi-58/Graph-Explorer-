@@ -791,57 +791,11 @@
             drawGraph();
         }
 
-        // ==================== IMPORT/EXPORT ====================
-        // function exportGraph() {
-        //     const data = {
-        //         nodes: GRAPH_DATA,
-        //         nodeNames: NODE_NAMES,
-        //         nextNodeId: nextNodeId,
-        //         directed: document.getElementById('directed-toggle').checked
-        //     };
-            
-        //     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        //     const url = URL.createObjectURL(blob);
-        //     const a = document.createElement('a');
-        //     a.href = url;
-        //     a.download = `graph_${Date.now()}.json`;
-        //     a.click();
-        //     URL.revokeObjectURL(url);
-            
-        //     document.getElementById('current-action').textContent = 'Graph exported successfully!';
-        // }
-
-        // function importGraph(event) {
-        //     const file = event.target.files[0];
-        //     if (!file) return;
-            
-        //     const reader = new FileReader();
-        //     reader.onload = function(e) {
-        //         try {
-        //             const data = JSON.parse(e.target.result);
-        //             GRAPH_DATA = data.nodes;
-        //             NODE_NAMES = data.nodeNames;
-        //             nextNodeId = data.nextNodeId;
-        //             document.getElementById('directed-toggle').checked = data.directed;
-                    
-        //             populateDropdowns();
-        //             updateGraphMetrics();
-        //             analyzeGraphProperties();
-        //             drawGraph();
-                    
-        //             document.getElementById('current-action').textContent = 'Graph imported successfully!';
-        //         } catch (err) {
-        //             document.getElementById('current-action').textContent = 'Error: Invalid JSON file';
-        //             console.error(err);
-        //         }
-        //     };
-        //     reader.readAsText(file);
-        // }
-
+        
         // ==================== ALGORITHMS ====================
         function runTraversal(startNode, isBFS) {
-            const visited = new Set();
-            const frontier = [startNode];
+            const visited = new Set();           // Tracks which nodes are already visited
+            const frontier = [startNode];        // Queue (BFS) or Stack (DFS) of nodes to process
             const history = [];
             OPERATION_COUNT = 0;
 
