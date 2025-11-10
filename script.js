@@ -796,14 +796,14 @@
         function runTraversal(startNode, isBFS) {
             const visited = new Set();           // Tracks which nodes are already visited
             const frontier = [startNode];        // Queue (BFS) or Stack (DFS) of nodes to process
-            const history = [];
-            OPERATION_COUNT = 0;
+            const history = [];                  // Steps recorded for visualization
+            OPERATION_COUNT = 0;                 // For complexity display
 
             while (frontier.length > 0) {
-                const current = isBFS ? frontier.shift() : frontier.pop();
+                const current = isBFS ? frontier.shift() : frontier.pop();         // Remove from front or top
                 OPERATION_COUNT++;
                 
-                if (visited.has(current)) continue;
+                if (visited.has(current)) continue;          // Skip if already processed
                 visited.add(current);
                 history.push({ 
                     type: 'visit', 
@@ -812,6 +812,7 @@
                     dataStructure: `${isBFS ? 'Queue' : 'Stack'}: [${frontier.join(', ')}]`
                 });
 
+                // Collect neighbors, sort alphabetically for stable visualization
                 const neighbors = GRAPH_DATA[current].neighbors.map(n => n.node).sort();
                 if (!isBFS) neighbors.reverse();
 
@@ -823,8 +824,8 @@
                             to: neighborKey, 
                             action: `Exploring edge ${current}→${neighborKey}`
                         });
-                        if (!frontier.includes(neighborKey)) {
-                            frontier.push(neighborKey);
+                        if (!frontier.includes(neighborKey)) {       
+                            frontier.push(neighborKey);              // Add neighbor for later visit
                         }
                     }
                 }
@@ -836,8 +837,8 @@
         }
 
         function runDijkstra(startNode, targetNode) {
-            const distances = {};
-            const previous = {};
+            const distances = {};                         // shortest known distance to each node
+            const previous = {};                            // previous node in shortest path
             const priorityQueue = new MinPriorityQueue();
             const history = [];
             OPERATION_COUNT = 0;
@@ -855,8 +856,8 @@
                 const current = smallest.node;
                 OPERATION_COUNT++;
 
-                if (smallest.distance > distances[current]) continue;
-                if (current === targetNode) break;
+                if (smallest.distance > distances[current]) continue;         // skip outdated entries
+                if (current === targetNode) break;                     // early stop when target reached
 
                 history.push({ 
                     type: 'current', 
@@ -870,7 +871,7 @@
                     const weight = neighbor.weight;
                     const distance = distances[current] + weight;
 
-                    if (distance < distances[nextNode]) {
+                    if (distance < distances[nextNode]) {         // found shorter path
                         distances[nextNode] = distance;
                         previous[nextNode] = current;
                         history.push({ 
@@ -885,7 +886,6 @@
                     }
                 }
             }
-
 
             showComplexity("Dijkstra");
 
@@ -906,6 +906,8 @@
             const allEdges = [];
             OPERATION_COUNT = 0;
 
+
+            // Step 1: initialization & edge list
             for (const nodeKey of NODE_NAMES) { 
                 distances[nodeKey] = Infinity; 
                 previous[nodeKey] = null; 
@@ -916,6 +918,7 @@
             distances[startNode] = 0;
             history.push({ type: 'init', action: `Bellman-Ford: ${numNodes - 1} passes` });
             
+            // Step 2: relax edges |V|-1 times
             for (let i = 0; i < numNodes; i++) {
                 let didRelax = false;
                 
@@ -951,9 +954,9 @@
                 }
             }
 
-
              showComplexity("Bellman-Ford");
 
+            // Step 3: reconstruct path 
             if (distances[targetNode] !== Infinity) {
                 const path = [];
                 let curr = targetNode;
@@ -1027,9 +1030,6 @@
                 }
             }
             
-
-
-
             showComplexity("Prim");
 
 
@@ -1086,11 +1086,8 @@
                 }
             }
 
-
             showComplexity("Kruskal");
 
-
-            
             return { path: mst.join(', '), cost: totalCost, history, type: 'MST', operations: OPERATION_COUNT };
         }
         
@@ -1145,10 +1142,6 @@
                     return { path: null, cost: null, history, cycle: true, distMatrix: dist, nextMatrix: next, operations: OPERATION_COUNT };
                 }
             }
-
-
-
-
             showComplexity("Floyd-Warshall");
 
             return { path: 'All-Pairs SP Computed', cost: null, history, cycle: false, distMatrix: dist, nextMatrix: next, operations: OPERATION_COUNT };
@@ -1585,13 +1578,6 @@
             window.addEventListener('resize', initializeCanvas);
         };
 
-
-
-
-
-
-
-
         // ======================
 // TIME COMPLEXITY GRAPH
 // ======================
@@ -1601,7 +1587,7 @@
 // SINGLE-CURVE TIME COMPLEXITY GRAPH
 // ======================
 const ctxChart = document.getElementById('complexityChart').getContext('2d');
-const n = Array.from({ length: 50 }, (_, i) => i + 1);
+const n = Array.from({ length: 30 }, (_, i) => i + 1);
 
 // Predefined growth formulas
 const complexityData = {
@@ -1668,6 +1654,3 @@ function showComplexity(algoName) {
 
   complexityChart.update();
 }
-
-// Example: call this after algorithm completes
-// showComplexity("Dijkstra");

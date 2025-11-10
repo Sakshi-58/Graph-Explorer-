@@ -14,12 +14,10 @@
         color: #111827;
     }
 
-    /* Add this inside your <style> or tailwind custom config */
-canvas {
-  filter: brightness(1.1);
-  transition: all 0.5s ease-in-out;
-}
-
+    canvas {
+        filter: brightness(1.1);
+        transition: all 0.5s ease-in-out;
+    }
 
     .container-card {
         box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.15), 0 4px 12px -2px rgba(0, 0, 0, 0.08);
@@ -111,10 +109,8 @@ canvas {
     }
 </style>
 
-
-    
     <script>
-tailwind.config = {
+   tailwind.config = {
     theme: {
         extend: {
             colors: {
@@ -242,9 +238,9 @@ tailwind.config = {
                     <button id="reset-btn" onclick="resetVisualization(true)" class="control-button bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 shadow-md text-sm">Clear</button>
                 </div>
                 
-                <button id="compare-btn" onclick="runAllAlgorithms()" class="control-button w-full bg-indigo-600 text-white py-2 mb-3 rounded-lg hover:bg-indigo-700 shadow-md text-sm">
+                <!-- <button id="compare-btn" onclick="runAllAlgorithms()" class="control-button w-full bg-indigo-600 text-white py-2 mb-3 rounded-lg hover:bg-indigo-700 shadow-md text-sm">
                     Run All & Compare
-                </button>
+                </button> -->
 
                 <!-- <button onclick="exportGraph()" class="control-button w-full bg-gray-600 text-white py-2 rounded-lg hover:bg-gray-700 text-sm mb-2">
                     Export Graph (JSON)
